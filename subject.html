@@ -1,0 +1,739 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Subject | Enggii Tea</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+</head><body><!-- ============================================
+     NAVBAR
+     ============================================ --><header class="navbar"><div class="nav-inner">
+
+    <a href="index.html" class="logo">
+
+        ENGGII TEA
+
+        <small>
+            Engineering Mathematics
+        </small>
+
+    </a>
+
+
+    <button class="menu-btn">
+        ☰
+    </button>
+
+
+    <nav class="nav-links">
+
+        <a href="dashboard.html">
+            Dashboard
+        </a>
+
+        <a href="search.html">
+            Search
+        </a>
+
+        <a href="upload.html">
+            Upload
+        </a>
+
+        <a href="my-resources.html">
+            My Resources
+        </a>
+
+        <a href="profile.html">
+            Profile
+        </a>
+
+        <span id="authArea"></span>
+
+    </nav>
+
+</div>
+
+</header><!-- ============================================
+     MAIN
+     ============================================ --><main class="page"><div class="container">
+
+
+    <!-- ====================================
+         BREADCRUMB
+         ==================================== -->
+
+    <div class="breadcrumb">
+
+        <a href="dashboard.html">
+            Dashboard
+        </a>
+
+        <span>›</span>
+
+        <span id="breadcrumbSemester">
+            Semester
+        </span>
+
+    </div>
+
+
+
+    <!-- ====================================
+         SUBJECT HEADER
+         ==================================== -->
+
+    <section class="card">
+
+        <h1
+            id="subjectTitle"
+            class="page-title"
+            style="margin-bottom:5px;"
+        >
+            Loading...
+        </h1>
+
+
+        <p
+            id="subjectCode"
+            class="page-subtitle"
+        >
+            Engineering Mathematics
+        </p>
+
+    </section>
+
+
+
+    <!-- ====================================
+         UNITS
+         ==================================== -->
+
+    <section class="section">
+
+        <h2 class="section-title">
+            Units
+        </h2>
+
+
+        <p
+            id="unitMessage"
+            class="page-subtitle"
+        >
+            Loading units...
+        </p>
+
+
+        <div
+            id="unitList"
+            class="unit-list"
+        >
+
+            <!-- Units will be created by JavaScript -->
+
+        </div>
+
+    </section>
+
+
+    <!-- ====================================
+         RESOURCES
+         ==================================== -->
+
+    <section
+        class="section"
+        style="margin-top:45px;"
+    >
+
+        <h2 class="section-title">
+            Resources
+        </h2>
+
+
+        <p class="page-subtitle">
+            Approved resources available for this subject.
+        </p>
+
+
+        <div
+            id="resourceMessage"
+            class="alert"
+            style="display:none;"
+        ></div>
+
+
+        <div
+            id="resourceList"
+            class="grid grid-3"
+        >
+
+            <!-- Resources will be loaded here -->
+
+        </div>
+
+    </section>
+
+
+</div>
+
+</main><!-- ============================================
+     FOOTER
+     ============================================ --><footer class="footer">© 2026 Enggii Tea ·
+Engineering Mathematics Resource Hub
+
+</footer><!-- ============================================
+     SUPABASE
+     ============================================ --><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/supabase.js"></script><!-- ============================================
+     SUBJECT JAVASCRIPT
+     ============================================ --><script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        loadSubject();
+
+    }
+);
+
+
+
+// ============================================
+// SUBJECT DATA
+// ============================================
+
+const subjects = {
+
+    "1": {
+
+        name: "Applied Mathematics",
+
+        code: "Engineering Mathematics - Semester 1",
+
+        units: [
+            "Unit 1",
+            "Unit 2",
+            "Unit 3",
+            "Unit 4",
+            "Unit 5"
+        ]
+
+    },
+
+
+    "2": {
+
+        name: "Linear Algebra",
+
+        code: "Engineering Mathematics - Semester 2",
+
+        units: [
+            "Unit 1",
+            "Unit 2",
+            "Unit 3",
+            "Unit 4",
+            "Unit 5"
+        ]
+
+    },
+
+
+    "3": {
+
+        name: "Discrete Mathematics",
+
+        code: "Engineering Mathematics - Semester 3",
+
+        units: [
+            "Unit 1",
+            "Unit 2",
+            "Unit 3",
+            "Unit 4",
+            "Unit 5"
+        ]
+
+    },
+
+
+    "4": {
+
+        name: "Probability & Statistics",
+
+        code: "Engineering Mathematics - Semester 4",
+
+        units: [
+            "Unit 1",
+            "Unit 2",
+            "Unit 3",
+            "Unit 4",
+            "Unit 5"
+        ]
+
+    }
+
+};
+
+
+
+// ============================================
+// GET SEMESTER FROM URL
+// ============================================
+
+function getSemester() {
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    return params.get("semester") || "1";
+
+}
+
+
+
+// ============================================
+// LOAD SUBJECT
+// ============================================
+
+async function loadSubject() {
+
+    const semester =
+        getSemester();
+
+
+    const subject =
+        subjects[semester];
+
+
+    if (!subject) {
+
+        document.getElementById(
+            "subjectTitle"
+        ).textContent =
+            "Subject Not Found";
+
+
+        document.getElementById(
+            "subjectCode"
+        ).textContent =
+            "Invalid semester";
+
+
+        return;
+
+    }
+
+
+
+    // ========================================
+    // UPDATE PAGE
+    // ========================================
+
+    document.getElementById(
+        "subjectTitle"
+    ).textContent =
+        subject.name;
+
+
+    document.getElementById(
+        "subjectCode"
+    ).textContent =
+        subject.code;
+
+
+    document.getElementById(
+        "breadcrumbSemester"
+    ).textContent =
+        `Semester ${semester}`;
+
+
+
+    // ========================================
+    // CREATE UNITS
+    // ========================================
+
+    const unitList =
+        document.getElementById(
+            "unitList"
+        );
+
+
+    unitList.innerHTML =
+        subject.units.map(
+            function (unit, index) {
+
+                return `
+
+                    <a
+                        href="search.html?semester=${encodeURIComponent(semester)}&unit=${encodeURIComponent(index + 1)}"
+                        class="unit-card"
+                    >
+
+                        <h3>
+                            ${unit}
+                        </h3>
+
+                        <p>
+                            View resources for ${unit}
+                        </p>
+
+                        <span class="btn btn-primary btn-sm">
+                            Explore →
+                        </span>
+
+                    </a>
+
+                `;
+
+            }
+        ).join("");
+
+
+    document.getElementById(
+        "unitMessage"
+    ).style.display =
+        "none";
+
+
+
+    // ========================================
+    // LOAD RESOURCES
+    // ========================================
+
+    await loadSubjectResources(
+        semester
+    );
+
+}
+
+
+
+// ============================================
+// LOAD SUBJECT RESOURCES
+// ============================================
+
+async function loadSubjectResources(
+    semester
+) {
+
+    const resourceList =
+        document.getElementById(
+            "resourceList"
+        );
+
+
+    const resourceMessage =
+        document.getElementById(
+            "resourceMessage"
+        );
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+
+                .from("resources")
+
+                .select("*")
+
+                .eq(
+                    "status",
+                    "approved"
+                )
+
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
+
+
+        if (error) {
+
+            throw error;
+
+        }
+
+
+        if (
+            !data ||
+            data.length === 0
+        ) {
+
+            resourceMessage.style.display =
+                "block";
+
+            resourceMessage.textContent =
+                "No approved resources available for this semester yet.";
+
+            return;
+
+        }
+
+
+        // ------------------------------------
+        // IMPORTANT
+        // ------------------------------------
+        //
+        // If your database has a semester
+        // column, filtering can be added here.
+        //
+        // Currently we display approved
+        // resources because your current
+        // resources table may not have semester.
+        // ------------------------------------
+
+
+        resourceList.innerHTML =
+            data.map(
+                createResourceCard
+            ).join("");
+
+
+    } catch (error) {
+
+        console.error(
+            "Subject resource error:",
+            error
+        );
+
+
+        resourceMessage.style.display =
+            "block";
+
+
+        resourceMessage.className =
+            "alert error";
+
+
+        resourceMessage.textContent =
+            "Unable to load resources. Please try again.";
+
+    }
+
+}
+
+
+
+// ============================================
+// RESOURCE CARD
+// ============================================
+
+function createResourceCard(
+    resource
+) {
+
+    const title =
+        escapeHTML(
+            resource.title ||
+            "Untitled Resource"
+        );
+
+
+    const description =
+        escapeHTML(
+            resource.description ||
+            "No description available."
+        );
+
+
+    const subject =
+        escapeHTML(
+            resource.subject ||
+            ""
+        );
+
+
+    const unit =
+        escapeHTML(
+            resource.unit ||
+            ""
+        );
+
+
+    const type =
+        escapeHTML(
+            resource.resource_type ||
+            "Resource"
+        );
+
+
+    let action = "";
+
+
+    // ========================================
+    // YOUTUBE
+    // ========================================
+
+    if (
+        resource.youtube_url
+    ) {
+
+        action = `
+
+            <a
+                href="${escapeAttribute(resource.youtube_url)}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-primary btn-sm"
+            >
+                Watch →
+            </a>
+
+        `;
+
+    }
+
+
+    // ========================================
+    // FILE
+    // ========================================
+
+    else if (
+        resource.file_url
+    ) {
+
+        action = `
+
+            <a
+                href="${escapeAttribute(resource.file_url)}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-primary btn-sm"
+            >
+                Open →
+            </a>
+
+        `;
+
+    }
+
+
+    // ========================================
+    // DETAILS
+    // ========================================
+
+    else {
+
+        action = `
+
+            <a
+                href="resource.html?id=${encodeURIComponent(resource.id)}"
+                class="btn btn-primary btn-sm"
+            >
+                View →
+            </a>
+
+        `;
+
+    }
+
+
+    return `
+
+        <article class="resource-card">
+
+            <span class="resource-type">
+                ${type}
+            </span>
+
+
+            <h3>
+                ${title}
+            </h3>
+
+
+            <p>
+                ${description}
+            </p>
+
+
+            <small>
+
+                ${subject}
+
+                ${
+                    unit
+                        ? " · " + unit
+                        : ""
+                }
+
+            </small>
+
+
+            <div
+                style="
+                    margin-top:15px;
+                    display:flex;
+                    justify-content:flex-end;
+                "
+            >
+
+                ${action}
+
+            </div>
+
+        </article>
+
+    `;
+
+}
+
+
+
+// ============================================
+// SECURITY HELPERS
+// ============================================
+
+function escapeHTML(
+    value
+) {
+
+    return String(value)
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+
+}
+
+
+function escapeAttribute(
+    value
+) {
+
+    return escapeHTML(value);
+
+}
+
+</script></body></html>

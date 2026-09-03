@@ -1,0 +1,682 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Upload Resource | Enggii Tea</title>
+
+<link
+    rel="stylesheet"
+    href="css/style.css"
+>
+
+</head><body><header class="navbar"><div class="nav-inner">
+
+    <a
+        href="index.html"
+        class="logo"
+    >
+        ENGGII TEA
+
+        <small>
+            Engineering Mathematics
+        </small>
+    </a>
+
+
+    <button
+        class="menu-btn"
+        type="button"
+    >
+        ☰
+    </button>
+
+
+    <nav class="nav-links">
+
+        <a href="dashboard.html">
+            Dashboard
+        </a>
+
+        <a href="search.html">
+            Search
+        </a>
+
+        <a
+            href="upload.html"
+            class="active"
+        >
+            Upload
+        </a>
+
+        <a href="my-resources.html">
+            My Resources
+        </a>
+
+        <a href="profile.html">
+            Profile
+        </a>
+
+        <span id="authArea"></span>
+
+    </nav>
+
+</div>
+
+</header><main class="page"><div class="container">
+
+    <h1 class="page-title">
+        Upload Resource
+    </h1>
+
+
+    <p class="page-subtitle">
+        Share useful Engineering Mathematics resources with students.
+    </p>
+
+
+
+    <section
+        class="auth-card"
+        style="width:100%;max-width:700px;margin:auto;"
+    >
+
+
+        <div
+            id="uploadMessage"
+            class="alert"
+            style="display:none;"
+        ></div>
+
+
+
+        <form id="uploadForm">
+
+
+            <!-- TITLE -->
+
+            <div class="form-group">
+
+                <label for="title">
+                    Resource Title
+                </label>
+
+                <input
+                    type="text"
+                    id="title"
+                    class="form-control"
+                    placeholder="Example: Unit 2 Important Problems"
+                    required
+                >
+
+            </div>
+
+
+
+            <!-- RESOURCE TYPE -->
+
+            <div class="form-group">
+
+                <label for="resourceType">
+                    Resource Type
+                </label>
+
+                <select
+                    id="resourceType"
+                    class="form-control"
+                    required
+                >
+
+                    <option value="">
+                        Select resource type
+                    </option>
+
+                    <option value="Video">
+                        Video
+                    </option>
+
+                    <option value="Playlist">
+                        Playlist
+                    </option>
+
+                    <option value="Formula Sheet">
+                        Formula Sheet
+                    </option>
+
+                    <option value="Question Paper">
+                        Question Paper
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- SEMESTER -->
+
+            <div class="form-group">
+
+                <label for="semester">
+                    Semester
+                </label>
+
+                <select
+                    id="semester"
+                    class="form-control"
+                    required
+                >
+
+                    <option value="">
+                        Select semester
+                    </option>
+
+                    <option value="1">
+                        Semester 1
+                    </option>
+
+                    <option value="2">
+                        Semester 2
+                    </option>
+
+                    <option value="3">
+                        Semester 3
+                    </option>
+
+                    <option value="4">
+                        Semester 4
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- UNIT -->
+
+            <div class="form-group">
+
+                <label for="unit">
+                    Unit
+                </label>
+
+                <select
+                    id="unit"
+                    class="form-control"
+                >
+
+                    <option value="">
+                        Select unit
+                    </option>
+
+                    <option value="1">
+                        Unit 1
+                    </option>
+
+                    <option value="2">
+                        Unit 2
+                    </option>
+
+                    <option value="3">
+                        Unit 3
+                    </option>
+
+                    <option value="4">
+                        Unit 4
+                    </option>
+
+                    <option value="5">
+                        Unit 5
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- DESCRIPTION -->
+
+            <div class="form-group">
+
+                <label for="description">
+                    Description
+                </label>
+
+                <textarea
+                    id="description"
+                    class="form-control"
+                    placeholder="Describe this resource..."
+                    rows="5"
+                ></textarea>
+
+            </div>
+
+
+
+            <!-- YOUTUBE URL -->
+
+            <div class="form-group">
+
+                <label for="youtubeUrl">
+                    YouTube URL
+                </label>
+
+                <input
+                    type="url"
+                    id="youtubeUrl"
+                    class="form-control"
+                    placeholder="https://youtube.com/..."
+                >
+
+            </div>
+
+
+
+            <!-- FILE URL -->
+
+            <div class="form-group">
+
+                <label for="fileUrl">
+                    PDF / File URL
+                </label>
+
+                <input
+                    type="url"
+                    id="fileUrl"
+                    class="form-control"
+                    placeholder="https://..."
+                >
+
+            </div>
+
+
+
+            <!-- SUBMIT -->
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+                id="submitButton"
+                style="width:100%;"
+            >
+                Submit Resource
+            </button>
+
+
+        </form>
+
+
+    </section>
+
+</div>
+
+</main><footer class="footer">© 2026 Enggii Tea
+
+</footer><!-- =========================
+     SUPABASE
+     ========================= --><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/supabase.js"></script><script src="js/auth.js"></script><script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    initializeUpload
+);
+
+
+async function initializeUpload() {
+
+    /* =========================
+       CHECK LOGIN
+       ========================= */
+
+    const {
+        data: {
+            user
+        }
+    } = await supabaseClient.auth.getUser();
+
+
+    if (!user) {
+
+        window.location.href =
+            "login.html";
+
+        return;
+
+    }
+
+
+    /* =========================
+       FORM
+       ========================= */
+
+    const form =
+        document.getElementById(
+            "uploadForm"
+        );
+
+
+    const message =
+        document.getElementById(
+            "uploadMessage"
+        );
+
+
+    const button =
+        document.getElementById(
+            "submitButton"
+        );
+
+
+
+    /* =========================
+       SUBMIT
+       ========================= */
+
+    form.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            /* =========================
+               GET VALUES
+               ========================= */
+
+            const title =
+                document
+                    .getElementById("title")
+                    .value
+                    .trim();
+
+
+            const resource_type =
+                document
+                    .getElementById("resourceType")
+                    .value;
+
+
+            const semester =
+                document
+                    .getElementById("semester")
+                    .value;
+
+
+            const unit =
+                document
+                    .getElementById("unit")
+                    .value;
+
+
+            const description =
+                document
+                    .getElementById("description")
+                    .value
+                    .trim();
+
+
+            const youtube_url =
+                document
+                    .getElementById("youtubeUrl")
+                    .value
+                    .trim();
+
+
+            const file_url =
+                document
+                    .getElementById("fileUrl")
+                    .value
+                    .trim();
+
+
+
+            /* =========================
+               VALIDATION
+               ========================= */
+
+            if (
+                !title ||
+                !resource_type ||
+                !semester
+            ) {
+
+                showMessage(
+                    "Please fill in all required fields.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            /* =========================
+               URL VALIDATION
+               ========================= */
+
+            if (
+                youtube_url &&
+                !isValidURL(youtube_url)
+            ) {
+
+                showMessage(
+                    "Please enter a valid YouTube URL.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            if (
+                file_url &&
+                !isValidURL(file_url)
+            ) {
+
+                showMessage(
+                    "Please enter a valid file URL.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+
+            /* =========================
+               CHECK RESOURCE LINK
+               ========================= */
+
+            if (
+                !youtube_url &&
+                !file_url
+            ) {
+
+                showMessage(
+                    "Please provide either a YouTube URL or a PDF/File URL.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+
+            /* =========================
+               LOADING
+               ========================= */
+
+            button.disabled = true;
+
+            button.textContent =
+                "Submitting...";
+
+
+
+            try {
+
+                /* =========================
+                   INSERT INTO SUPABASE
+                   ========================= */
+
+                const {
+                    data,
+                    error
+                } = await supabaseClient
+
+                    .from("resources")
+
+                    .insert({
+
+                        title: title,
+
+                        resource_type:
+                            resource_type,
+
+                        semester:
+                            semester,
+
+                        unit:
+                            unit || null,
+
+                        description:
+                            description || null,
+
+                        youtube_url:
+                            youtube_url || null,
+
+                        file_url:
+                            file_url || null,
+
+                        uploaded_by:
+                            user.id,
+
+                        status:
+                            "pending"
+
+                    })
+
+                    .select();
+
+
+                if (error) {
+
+                    throw error;
+
+                }
+
+
+
+                /* =========================
+                   SUCCESS
+                   ========================= */
+
+                showMessage(
+                    "Resource submitted successfully! It will be reviewed by an admin.",
+                    "success"
+                );
+
+
+                form.reset();
+
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Upload error:",
+                    error
+                );
+
+
+                showMessage(
+                    error.message ||
+                    "Unable to submit resource.",
+                    "error"
+                );
+
+            }
+
+
+            finally {
+
+                button.disabled = false;
+
+                button.textContent =
+                    "Submit Resource";
+
+            }
+
+        }
+    );
+
+
+
+    /* =========================
+       MESSAGE FUNCTION
+       ========================= */
+
+    function showMessage(
+        text,
+        type
+    ) {
+
+        message.style.display =
+            "block";
+
+
+        message.textContent =
+            text;
+
+
+        if (type === "success") {
+
+            message.className =
+                "alert alert-success";
+
+        }
+
+        else {
+
+            message.className =
+                "alert alert-error";
+
+        }
+
+    }
+
+
+
+    /* =========================
+       URL FUNCTION
+       ========================= */
+
+    function isValidURL(value) {
+
+        try {
+
+            new URL(value);
+
+            return true;
+
+        }
+
+        catch {
+
+            return false;
+
+        }
+
+    }
+
+}
+
+</script></body></html>

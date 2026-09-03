@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Search | Enggii Tea</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="navbar">
+    <div class="nav-inner">
+        <a href="index.html" class="logo">
+            ENGGII TEA
+            <small>Engineering Mathematics</small>
+        </a>
+        <button class="menu-btn" type="button">☰</button>
+        <nav class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="search.html" class="active">Search</a>
+            <a href="upload.html">Upload</a>
+            <a href="my-resources.html">My Resources</a>
+            <a href="profile.html">Profile</a>
+            <span id="authArea"></span>
+        </nav>
+    </div>
+</header>
+
+<main class="page">
+<div class="container">
+
+<section class="card">
+    <h1 class="page-title">Search Resources</h1>
+    <p class="page-subtitle">
+        Find videos, playlists, formula sheets and question papers.
+    </p>
+
+    <form id="searchForm" style="display:flex;gap:10px;margin-top:25px;flex-wrap:wrap;">
+        <input
+            type="search"
+            id="searchInput"
+            class="form-control"
+            placeholder="Search mathematics resources..."
+            autocomplete="off"
+            style="flex:1;min-width:220px;"
+        >
+        <button type="submit" id="searchButton" class="btn btn-primary">
+            Search
+        </button>
+    </form>
+</section>
+
+<section class="card" style="margin-top:25px;">
+    <h2 class="section-title">Filters</h2>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-top:20px;">
+
+        <div class="form-group">
+            <label for="subjectFilter">Subject</label>
+            <select id="subjectFilter" class="form-control">
+                <option value="">All Subjects</option>
+                <option value="Applied Mathematics">Applied Mathematics</option>
+                <option value="Linear Algebra">Linear Algebra</option>
+                <option value="Discrete Mathematics">Discrete Mathematics</option>
+                <option value="Probability & Statistics">Probability & Statistics</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="unitFilter">Unit</label>
+            <select id="unitFilter" class="form-control">
+                <option value="">All Units</option>
+                <option value="1">Unit 1</option>
+                <option value="2">Unit 2</option>
+                <option value="3">Unit 3</option>
+                <option value="4">Unit 4</option>
+                <option value="5">Unit 5</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="typeFilter">Resource Type</label>
+            <select id="typeFilter" class="form-control">
+                <option value="">All Types</option>
+                <option value="Video">Video</option>
+                <option value="Playlist">Playlist</option>
+                <option value="Formula Sheet">Formula Sheet</option>
+                <option value="Question Paper">Question Paper</option>
+            </select>
+        </div>
+    </div>
+
+    <button type="button" id="clearFilters" class="btn btn-outline" style="margin-top:20px;">
+        Clear Filters
+    </button>
+</section>
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:40px;gap:15px;flex-wrap:wrap;">
+    <div>
+        <h2 class="section-title">Results</h2>
+        <p id="resultCount" class="page-subtitle">Loading resources...</p>
+    </div>
+</div>
+
+<div id="loading" style="text-align:center;padding:40px;">
+    Loading resources...
+</div>
+
+<div id="errorMessage" class="alert error" style="display:none;"></div>
+
+<div id="resourceList" class="grid grid-3"></div>
+
+<div id="emptyMessage" class="alert" style="display:none;">
+    No resources found.
+</div>
+
+</div>
+</main>
+
+<footer class="footer">
+    © 2026 Enggii Tea · Engineering Mathematics Resource Hub
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/auth.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    loadResources();
+
+    document.getElementById("searchForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        loadResources();
+    });
+
+    document.getElementById("subjectFilter").addEventListener("change", loadResources);
+    document.getElementById("unitFilter").addEventListener("change", loadResources);
+    document.getElementById("typeFilter").addEventListener("change", loadResources);
+    document.getElementById("clearFilters").addEventListener("click", clearFilters);
+});
+
+async function loadResources() {
+    const loading = document.getElementById("loading");
+    const resourceList = document.getElementById("resourceList");
+    const emptyMessage = document.getElementById("emptyMessage");
+    const errorMessage = document.getElementById("errorMessage");
+    const resultCount = document.getElementById("resultCount");
+    const searchButton = document.getElementById("searchButton");
+
+    loading.style.display = "block";
+    resourceList.innerHTML = "";
+    emptyMessage.style.display = "none";
+    errorMessage.style.display = "none";
+    searchButton.disabled = true;
+
+    const searchText = document.getElementById("searchInput").value.trim();
+    const subject = document.getElementById("subjectFilter").value;
+    const unit = document.getElementById("unitFilter").value;
+    const resourceType = document.getElementById("typeFilter").value;
+
+    try {
+        let query = supabaseClient
+            .from("resources")
+            .select("*")
+            .eq("status", "approved")
+            .order("created_at", { ascending: false });
+
+        if (searchText) {
+            const safeSearch = searchText
+                .replace(/,/g, " ")
+                .replace(/\(/g, " ")
+                .replace(/\)/g, " ");
+
+            query = query.or(
+                `title.ilike.%${safeSearch}%,description.ilike.%${safeSearch}%,subject.ilike.%${safeSearch}%,unit.ilike.%${safeSearch}%`
+            );
+        }
+
+        if (subject) query = query.eq("subject", subject);
+        if (unit) query = query.eq("unit", unit);
+        if (resourceType) query = query.eq("resource_type", resourceType);
+
+        const { data, error } = await query;
+        if (error) throw error;
+
+        loading.style.display = "none";
+
+        if (!data || data.length === 0) {
+            resultCount.textContent = "0 resources found";
+            emptyMessage.style.display = "block";
+            return;
+        }
+
+        resultCount.textContent =
+            `${data.length} resource${data.length !== 1 ? "s" : ""} found`;
+
+        resourceList.innerHTML = data.map(createResourceCard).join("");
+
+    } catch (error) {
+        console.error("Search resources error:", error);
+        loading.style.display = "none";
+        resultCount.textContent = "Unable to load resources";
+        errorMessage.style.display = "block";
+        errorMessage.textContent =
+            error.message || "Unable to load resources. Please try again.";
+    } finally {
+        searchButton.disabled = false;
+    }
+}
+
+function createResourceCard(resource) {
+    const title = escapeHTML(resource.title || "Untitled Resource");
+    const description = escapeHTML(resource.description || "No description available.");
+    const subject = escapeHTML(resource.subject || "Mathematics");
+    const unit = escapeHTML(resource.unit || "");
+    const type = escapeHTML(resource.resource_type || "Resource");
+
+    let action = "";
+
+    if (resource.youtube_url) {
+        action = `
+            <a href="${escapeAttribute(resource.youtube_url)}"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="btn btn-primary btn-sm">
+                ${resource.resource_type === "Playlist" ? "Open Playlist →" : "Watch Video →"}
+            </a>`;
+    } else if (resource.file_url) {
+        action = `
+            <a href="${escapeAttribute(resource.file_url)}"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="btn btn-primary btn-sm">
+                Open File →
+            </a>`;
+    } else {
+        action = `
+            <a href="resource.html?id=${encodeURIComponent(resource.id)}"
+               class="btn btn-primary btn-sm">
+                View Details →
+            </a>`;
+    }
+
+    return `
+        <article class="resource-card">
+            <span class="resource-type">${type}</span>
+            <h3>${title}</h3>
+            <p>${description}</p>
+            <small>
+                ${subject}${unit ? " · Unit " + unit : ""}
+            </small>
+            <div style="margin-top:15px;display:flex;justify-content:flex-end;gap:10px;">
+                ${action}
+            </div>
+        </article>`;
+}
+
+function clearFilters() {
+    document.getElementById("searchInput").value = "";
+    document.getElementById("subjectFilter").value = "";
+    document.getElementById("unitFilter").value = "";
+    document.getElementById("typeFilter").value = "";
+    loadResources();
+}
+
+function escapeHTML(value) {
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function escapeAttribute(value) {
+    return escapeHTML(value);
+}
+</script>
+
+</body>
+</html>

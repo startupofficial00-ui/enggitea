@@ -1,0 +1,375 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Profile | Enggii Tea</title>
+
+<link
+    rel="stylesheet"
+    href="css/style.css"
+>
+
+</head><body><header class="navbar"><div class="nav-inner">
+
+    <a
+        href="index.html"
+        class="logo"
+    >
+        ENGGII TEA
+
+        <small>
+            Engineering Mathematics
+        </small>
+
+    </a>
+
+
+    <button
+        class="menu-btn"
+        type="button"
+    >
+        ☰
+    </button>
+
+
+    <nav class="nav-links">
+
+        <a href="dashboard.html">
+            Dashboard
+        </a>
+
+        <a href="search.html">
+            Search
+        </a>
+
+        <a href="upload.html">
+            Upload
+        </a>
+
+        <a href="my-resources.html">
+            My Resources
+        </a>
+
+        <a
+            href="profile.html"
+            class="active"
+        >
+            Profile
+        </a>
+
+        <span id="authArea"></span>
+
+    </nav>
+
+</div>
+
+</header><main class="page"><div class="container">
+
+
+    <h1 class="page-title">
+        My Profile
+    </h1>
+
+
+    <p class="page-subtitle">
+        View your Enggii Tea account information.
+    </p>
+
+
+
+    <!-- PROFILE HEADER -->
+
+    <section class="card">
+
+        <div class="profile-header">
+
+            <div
+                class="avatar"
+                id="avatar"
+            >
+                U
+            </div>
+
+
+            <div class="profile-info">
+
+                <h2 id="profileName">
+                    Loading...
+                </h2>
+
+
+                <p id="profileEmail">
+                    Loading...
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- PROFILE DETAILS -->
+
+    <section class="section">
+
+        <div class="grid grid-2">
+
+
+            <div class="subject-card">
+
+                <h3>
+                    Name
+                </h3>
+
+                <p id="nameValue">
+                    —
+                </p>
+
+            </div>
+
+
+
+            <div class="subject-card">
+
+                <h3>
+                    Email
+                </h3>
+
+                <p id="emailValue">
+                    —
+                </p>
+
+            </div>
+
+
+
+            <div class="subject-card">
+
+                <h3>
+                    Account Type
+                </h3>
+
+                <p id="roleValue">
+                    Student
+                </p>
+
+            </div>
+
+
+
+            <div class="subject-card">
+
+                <h3>
+                    Account Status
+                </h3>
+
+                <p>
+                    Active
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- LOGOUT -->
+
+    <section class="section">
+
+        <button
+            class="btn btn-danger"
+            id="logoutProfile"
+            type="button"
+        >
+            Logout
+        </button>
+
+    </section>
+
+
+</div>
+
+</main><footer class="footer">© 2026 Enggii Tea
+
+</footer><!-- SUPABASE --><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/supabase.js"></script><script src="js/auth.js"></script><script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    loadProfile
+);
+
+
+async function loadProfile() {
+
+    try {
+
+        /* =========================
+           GET CURRENT USER
+           ========================= */
+
+        const {
+            data: {
+                user
+            },
+            error
+        } = await supabaseClient.auth.getUser();
+
+
+        /* =========================
+           NOT LOGGED IN
+           ========================= */
+
+        if (
+            error ||
+            !user
+        ) {
+
+            window.location.href =
+                "login.html";
+
+            return;
+
+        }
+
+
+        /* =========================
+           USER INFORMATION
+           ========================= */
+
+        const email =
+            user.email ||
+            "—";
+
+
+        const name =
+            user.user_metadata?.name ||
+            user.user_metadata?.full_name ||
+            user.user_metadata?.username ||
+            "Student";
+
+
+        /* =========================
+           ROLE
+           ========================= */
+
+        const role =
+            user.user_metadata?.role ||
+            "student";
+
+
+        /* =========================
+           DISPLAY PROFILE
+           ========================= */
+
+        document.getElementById(
+            "profileName"
+        ).textContent =
+            name;
+
+
+        document.getElementById(
+            "profileEmail"
+        ).textContent =
+            email;
+
+
+        document.getElementById(
+            "nameValue"
+        ).textContent =
+            name;
+
+
+        document.getElementById(
+            "emailValue"
+        ).textContent =
+            email;
+
+
+        document.getElementById(
+            "roleValue"
+        ).textContent =
+            role.charAt(0).toUpperCase() +
+            role.slice(1);
+
+
+        /* =========================
+           AVATAR
+           ========================= */
+
+        document.getElementById(
+            "avatar"
+        ).textContent =
+            name
+                .charAt(0)
+                .toUpperCase();
+
+
+        /* =========================
+           LOGOUT
+           ========================= */
+
+        document
+            .getElementById(
+                "logoutProfile"
+            )
+            .addEventListener(
+                "click",
+                logout
+            );
+
+
+    } catch (error) {
+
+        console.error(
+            "Profile loading error:",
+            error
+        );
+
+        window.location.href =
+            "login.html";
+
+    }
+
+}
+
+
+
+/* =========================
+   LOGOUT
+   ========================= */
+
+async function logout() {
+
+    const {
+        error
+    } = await supabaseClient.auth.signOut();
+
+
+    if (error) {
+
+        alert(
+            "Logout failed. Please try again."
+        );
+
+        console.error(error);
+
+        return;
+
+    }
+
+
+    window.location.href =
+        "login.html";
+
+}
+
+</script></body></html>

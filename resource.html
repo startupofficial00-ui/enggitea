@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Resource | Enggii Tea</title>
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+</head>
+
+<body>
+
+
+<!-- ================= NAVBAR ================= -->
+
+<header class="navbar">
+
+    <div class="nav-inner">
+
+        <a href="index.html" class="logo">
+
+            ENGGII TEA
+
+            <small>
+                Engineering Mathematics
+            </small>
+
+        </a>
+
+
+        <button
+            class="menu-btn"
+            type="button"
+        >
+            ☰
+        </button>
+
+
+        <nav class="nav-links">
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="dashboard.html">
+                Dashboard
+            </a>
+
+            <a href="search.html">
+                Search
+            </a>
+
+            <a href="upload.html">
+                Upload
+            </a>
+
+            <a href="my-resources.html">
+                My Resources
+            </a>
+
+            <a href="profile.html">
+                Profile
+            </a>
+
+            <span id="authArea"></span>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+<!-- ================= MAIN ================= -->
+
+<main class="page">
+
+    <div class="container">
+
+
+        <!-- BREADCRUMB -->
+
+        <div class="breadcrumb">
+
+            <a href="dashboard.html">
+                Dashboard
+            </a>
+
+            <span>›</span>
+
+            <a href="search.html">
+                Resources
+            </a>
+
+            <span>›</span>
+
+            <span>
+                Details
+            </span>
+
+        </div>
+
+
+        <!-- RESOURCE DETAILS -->
+
+        <section
+            id="resourceDetails"
+            class="card"
+        >
+
+            <div
+                id="loading"
+                style="
+                    text-align:center;
+                    padding:40px;
+                "
+            >
+
+                Loading resource...
+
+            </div>
+
+
+            <div
+                id="errorMessage"
+                class="alert error"
+                style="display:none;"
+            ></div>
+
+
+            <div
+                id="resourceContent"
+                style="display:none;"
+            ></div>
+
+        </section>
+
+
+    </div>
+
+</main>
+
+
+<!-- ================= FOOTER ================= -->
+
+<footer class="footer">
+
+    © 2026 Enggii Tea · Engineering Mathematics Resource Hub
+
+</footer>
+
+
+<!-- ================= SUPABASE ================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="js/supabase.js"></script>
+
+<script src="js/auth.js"></script>
+
+
+<!-- ================= RESOURCE LOGIC ================= -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        loadResource();
+
+    }
+);
+
+
+// =====================================================
+// GET RESOURCE ID
+// =====================================================
+
+function getResourceId() {
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    return params.get("id");
+
+}
+
+
+// =====================================================
+// LOAD RESOURCE
+// =====================================================
+
+async function loadResource() {
+
+    const loading =
+        document.getElementById("loading");
+
+    const errorMessage =
+        document.getElementById("errorMessage");
+
+    const content =
+        document.getElementById("resourceContent");
+
+
+    const resourceId =
+        getResourceId();
+
+
+    if (!resourceId) {
+
+        loading.style.display = "none";
+
+        errorMessage.style.display = "block";
+
+        errorMessage.textContent =
+            "Resource ID is missing.";
+
+        return;
+
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+
+            .from("resources")
+
+            .select("*")
+
+            .eq(
+                "id",
+                resourceId
+            )
+
+            .eq(
+                "status",
+                "approved"
+            )
+
+            .single();
+
+
+        if (error) {
+
+            throw error;
+
+        }
+
+
+        if (!data) {
+
+            throw new Error(
+                "Resource not found."
+            );
+
+        }
+
+
+        loading.style.display =
+            "none";
+
+
+        content.style.display =
+            "block";
+
+
+        content.innerHTML =
+            createResourceDetails(data);
+
+
+    } catch (error) {
+
+        console.error(
+            "Resource loading error:",
+            error
+        );
+
+
+        loading.style.display =
+            "none";
+
+
+        errorMessage.style.display =
+            "block";
+
+
+        errorMessage.textContent =
+            error.message ||
+            "Unable to load resource.";
+
+    }
+
+}
+
+
+// =====================================================
+// CREATE RESOURCE DETAILS
+// =====================================================
+
+function createResourceDetails(resource) {
+
+    const title =
+        escapeHTML(
+            resource.title ||
+            "Untitled Resource"
+        );
+
+
+    const description =
+        escapeHTML(
+            resource.description ||
+            "No description available."
+        );
+
+
+    const subject =
+        escapeHTML(
+            resource.subject ||
+            "Mathematics"
+        );
+
+
+    const unit =
+        escapeHTML(
+            resource.unit ||
+            ""
+        );
+
+
+    const type =
+        escapeHTML(
+            resource.resource_type ||
+            "Resource"
+        );
+
+
+    let action = "";
+
+
+    // =================================================
+    // YOUTUBE
+    // =================================================
+
+    if (resource.youtube_url) {
+
+        action = `
+
+            <a
+                href="${escapeAttribute(resource.youtube_url)}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-primary"
+            >
+                Watch / Open Video →
+            </a>
+
+        `;
+
+    }
+
+
+    // =================================================
+    // FILE
+    // =================================================
+
+    else if (resource.file_url) {
+
+        action = `
+
+            <a
+                href="${escapeAttribute(resource.file_url)}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-primary"
+            >
+                Open File →
+            </a>
+
+        `;
+
+    }
+
+
+    return `
+
+        <span class="resource-type">
+            ${type}
+        </span>
+
+
+        <h1 class="page-title">
+            ${title}
+        </h1>
+
+
+        <p class="page-subtitle">
+
+            ${subject}
+
+            ${
+                unit
+                    ? " · Unit " + unit
+                    : ""
+            }
+
+        </p>
+
+
+        <hr style="margin:25px 0;">
+
+
+        <h2 class="section-title">
+            Description
+        </h2>
+
+
+        <p>
+            ${description}
+        </p>
+
+
+        ${
+            action
+                ? `
+                    <div
+                        style="
+                            margin-top:30px;
+                        "
+                    >
+                        ${action}
+                    </div>
+                `
+                : `
+                    <div
+                        class="alert"
+                        style="margin-top:30px;"
+                    >
+                        No external file or video link
+                        is available for this resource.
+                    </div>
+                `
+        }
+
+    `;
+
+}
+
+
+// =====================================================
+// SECURITY HELPERS
+// =====================================================
+
+function escapeHTML(value) {
+
+    return String(value)
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+
+}
+
+
+function escapeAttribute(value) {
+
+    return escapeHTML(value);
+
+}
+
+</script>
+
+
+</body>
+
+</html>

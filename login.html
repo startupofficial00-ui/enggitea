@@ -1,0 +1,302 @@
+<!DOCTYPE html><html lang="en">
+<head>
+    <meta charset="UTF-8"><meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Login | Enggii Tea</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+</head><body><header class="navbar">
+    <div class="nav-inner">    <a href="index.html" class="logo">
+        ENGGII TEA
+        <small>Your Engineering Mathematics Resource Hub</small>
+    </a>
+
+    <button class="menu-btn">
+        ☰
+    </button>
+
+    <nav class="nav-links">
+
+        <a href="index.html">
+            Home
+        </a>
+
+        <a href="dashboard.html">
+            Subjects
+        </a>
+
+        <a href="search.html">
+            Search
+        </a>
+
+        <span id="authArea"></span>
+
+    </nav>
+
+</div>
+
+</header><main><section class="page"><div class="container">
+
+    <div class="form-card">
+
+        <h1 class="page-title">
+            Welcome Back
+        </h1>
+
+        <p class="page-subtitle">
+            Login to continue to Enggii Tea
+        </p>
+
+
+        <!-- Error / Success Message -->
+        <div
+            id="loginMessage"
+            class="message"
+            style="display:none;"
+        ></div>
+
+
+        <form id="loginForm">
+
+            <!-- EMAIL -->
+
+            <div class="form-group">
+
+                <label for="email">
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Enter your email"
+                    required
+                >
+
+            </div>
+
+
+            <!-- PASSWORD -->
+
+            <div class="form-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    required
+                >
+
+            </div>
+
+
+            <!-- LOGIN BUTTON -->
+
+            <button
+                type="submit"
+                id="loginBtn"
+                class="btn btn-primary"
+            >
+                Login
+            </button>
+
+        </form>
+
+
+        <p style="margin-top:20px; text-align:center;">
+
+            Don't have an account?
+
+            <a href="register.html">
+                Register here
+            </a>
+
+        </p>
+
+    </div>
+
+</div>
+
+</section></main><footer class="footer">© 2026 Enggii Tea ·
+Engineering Mathematics Resource Hub
+
+</footer><!-- SUPABASE --><script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script><script src="js/supabase.js"></script><!-- AUTH --><script src="js/auth.js"></script><script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const loginForm =
+        document.getElementById("loginForm");
+
+    const loginBtn =
+        document.getElementById("loginBtn");
+
+    const message =
+        document.getElementById("loginMessage");
+
+
+    function showMessage(text, type) {
+
+        message.style.display = "block";
+
+        message.textContent = text;
+
+        message.className =
+            "message " + type;
+    }
+
+
+    loginForm.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+
+            const email =
+                document
+                    .getElementById("email")
+                    .value
+                    .trim()
+                    .toLowerCase();
+
+
+            const password =
+                document
+                    .getElementById("password")
+                    .value;
+
+
+            if (!email || !password) {
+
+                showMessage(
+                    "Please enter email and password.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            loginBtn.disabled = true;
+
+            loginBtn.textContent =
+                "Logging in...";
+
+
+            try {
+
+                const {
+                    data,
+                    error
+                } = await supabaseClient.auth.signInWithPassword({
+
+                    email: email,
+
+                    password: password
+
+                });
+
+
+                if (error) {
+                    throw error;
+                }
+
+
+                if (!data.user) {
+
+                    throw new Error(
+                        "Login failed. Please try again."
+                    );
+
+                }
+
+
+                /*
+                 * Store basic user information locally.
+                 * Supabase session itself is automatically
+                 * stored by Supabase.
+                 */
+
+                localStorage.setItem(
+                    "currentUser",
+                    JSON.stringify({
+
+                        id: data.user.id,
+
+                        email: data.user.email
+
+                    })
+                );
+
+
+                showMessage(
+                    "Login successful! Redirecting...",
+                    "success"
+                );
+
+
+                setTimeout(function () {
+
+                    window.location.href =
+                        "dashboard.html";
+
+                }, 800);
+
+
+            } catch (error) {
+
+                console.error(
+                    "Login error:",
+                    error
+                );
+
+
+                let errorMessage =
+                    "Login failed. Please check your email and password.";
+
+
+                if (
+                    error.message &&
+                    error.message.trim()
+                ) {
+
+                    errorMessage =
+                        error.message;
+
+                }
+
+
+                showMessage(
+                    errorMessage,
+                    "error"
+                );
+
+
+            } finally {
+
+                loginBtn.disabled = false;
+
+                loginBtn.textContent =
+                    "Login";
+
+            }
+
+        }
+    );
+
+});
+
+</script></body>
+</html>

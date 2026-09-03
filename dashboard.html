@@ -1,0 +1,745 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Dashboard | Enggii Tea</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+</head><body><!-- ============================================
+     NAVBAR
+     ============================================ --><header class="navbar"><div class="nav-inner">
+
+    <a href="index.html" class="logo">
+
+        ENGGII TEA
+
+        <small>
+            Engineering Mathematics
+        </small>
+
+    </a>
+
+
+    <button class="menu-btn">
+        ☰
+    </button>
+
+
+    <nav class="nav-links">
+
+        <a href="index.html">
+            Home
+        </a>
+
+        <a href="dashboard.html" class="active">
+            Subjects
+        </a>
+
+        <a href="search.html">
+            Search
+        </a>
+
+        <span id="authArea"></span>
+
+    </nav>
+
+</div>
+
+</header><!-- ============================================
+     MAIN
+     ============================================ --><main><section class="page"><div class="container">
+
+
+    <!-- ====================================
+         WELCOME
+         ==================================== -->
+
+    <div class="dashboard-header">
+
+        <h1 class="page-title">
+            Engineering Mathematics
+        </h1>
+
+        <p
+            class="page-subtitle"
+            id="welcomeText"
+        >
+            Explore subjects, videos, formula sheets
+            and question papers.
+        </p>
+
+    </div>
+
+
+
+    <!-- ====================================
+         SEMESTERS
+         ==================================== -->
+
+    <h2 class="section-title">
+        Explore By Semester
+    </h2>
+
+
+    <div class="grid grid-4">
+
+
+        <!-- SEMESTER 1 -->
+
+        <a
+            href="subject.html?semester=1"
+            class="semester-card"
+        >
+
+            <h3>
+                Semester 1
+            </h3>
+
+            <p>
+                Applied Mathematics
+            </p>
+
+            <span class="btn btn-primary btn-sm">
+                Explore →
+            </span>
+
+        </a>
+
+
+
+        <!-- SEMESTER 2 -->
+
+        <a
+            href="subject.html?semester=2"
+            class="semester-card"
+        >
+
+            <h3>
+                Semester 2
+            </h3>
+
+            <p>
+                Linear Algebra
+            </p>
+
+            <span class="btn btn-primary btn-sm">
+                Explore →
+            </span>
+
+        </a>
+
+
+
+        <!-- SEMESTER 3 -->
+
+        <a
+            href="subject.html?semester=3"
+            class="semester-card"
+        >
+
+            <h3>
+                Semester 3
+            </h3>
+
+            <p>
+                Discrete Mathematics
+            </p>
+
+            <span class="btn btn-primary btn-sm">
+                Explore →
+            </span>
+
+        </a>
+
+
+
+        <!-- SEMESTER 4 -->
+
+        <a
+            href="subject.html?semester=4"
+            class="semester-card"
+        >
+
+            <h3>
+                Semester 4
+            </h3>
+
+            <p>
+                Probability & Statistics
+            </p>
+
+            <span class="btn btn-primary btn-sm">
+                Explore →
+            </span>
+
+        </a>
+
+    </div>
+
+
+
+    <!-- ====================================
+         RESOURCE TYPES
+         ==================================== -->
+
+    <h2
+        class="section-title"
+        style="margin-top:50px;"
+    >
+        Resource Library
+    </h2>
+
+
+    <p class="page-subtitle">
+        Find the right material for your preparation.
+    </p>
+
+
+    <div class="grid grid-4">
+
+
+        <!-- VIDEOS -->
+
+        <a
+            href="search.html?type=Video"
+            class="semester-card"
+        >
+
+            <h3>
+                🎥 Videos
+            </h3>
+
+            <p>
+                Learn concepts through video lessons.
+            </p>
+
+            <span class="btn btn-primary btn-sm">
+                View Videos →
+            </span>
+
+        </a>
+
+
+
+        <!-- PLAYLISTS -->
+
+        <a
+            href="search.html?type=Playlist"
+            class="semester-card"
+        >
+
+            <h3>
+                ▶️ Playlists
+            </h3>
+
+            <p>
+                Complete topic-wise playlists.
+            </p>
+
+            <span class="btn btn-primary btn-sm">
+                View Playlists →
+            </span>
+
+        </a>
+
+
+
+        <!-- FORMULA SHEETS -->
+
+        <a
+            href="search.html?type=Formula%20Sheet"
+            class="semester-card"
+        >
+
+            <h3>
+                📄 Formula Sheets
+            </h3>
+
+            <p>
+                Quick revision formulas.
+            </p>
+
+            <span class="btn btn-primary btn-sm">
+                View Formulas →
+            </span>
+
+        </a>
+
+
+
+        <!-- QUESTION PAPERS -->
+
+        <a
+            href="search.html?type=Question%20Paper"
+            class="semester-card"
+        >
+
+            <h3>
+                📝 Question Papers
+            </h3>
+
+            <p>
+                Practice previous question papers.
+            </p>
+
+            <span class="btn btn-primary btn-sm">
+                Practice →
+            </span>
+
+        </a>
+
+    </div>
+
+
+
+    <!-- ====================================
+         RECENT RESOURCES
+         ==================================== -->
+
+    <div
+        style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-top:50px;
+            gap:15px;
+            flex-wrap:wrap;
+        "
+    >
+
+        <div>
+
+            <h2 class="section-title">
+                Recently Added
+            </h2>
+
+            <p class="page-subtitle">
+                Latest approved resources from Enggii Tea.
+            </p>
+
+        </div>
+
+
+        <a
+            href="search.html"
+            class="btn btn-outline"
+        >
+            View All →
+        </a>
+
+    </div>
+
+
+    <!-- RESOURCE LOADING -->
+
+    <div
+        id="resourceLoading"
+        style="text-align:center;padding:30px;"
+    >
+        Loading resources...
+    </div>
+
+
+    <!-- RESOURCE ERROR -->
+
+    <div
+        id="resourceError"
+        class="alert error"
+        style="display:none;"
+    ></div>
+
+
+    <!-- RESOURCE LIST -->
+
+    <div
+        id="resourceList"
+        class="grid grid-3"
+    ></div>
+
+
+</div>
+
+</section></main><!-- ============================================
+     FOOTER
+     ============================================ --><footer class="footer">© 2026 Enggii Tea ·
+Engineering Mathematics Resource Hub
+
+</footer><!-- ============================================
+     SUPABASE
+     ============================================ --><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/supabase.js"></script><!-- ============================================
+     DASHBOARD JAVASCRIPT
+     ============================================ --><script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async function () {
+
+
+        // ========================================
+        // CHECK SUPABASE
+        // ========================================
+
+        if (
+            typeof supabaseClient === "undefined"
+        ) {
+
+            console.error(
+                "Supabase client is not available."
+            );
+
+            return;
+
+        }
+
+
+
+        // ========================================
+        // GET CURRENT USER
+        // ========================================
+
+        try {
+
+            const {
+                data: {
+                    user
+                }
+            } =
+                await supabaseClient.auth.getUser();
+
+
+            if (user) {
+
+                const name =
+                    user.user_metadata?.name ||
+                    user.email?.split("@")[0] ||
+                    "Student";
+
+
+                document.getElementById(
+                    "welcomeText"
+                ).textContent =
+                    `Welcome, ${name}! Explore subjects, videos, formula sheets and question papers.`;
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "User loading error:",
+                error
+            );
+
+        }
+
+
+
+        // ========================================
+        // LOAD RESOURCES
+        // ========================================
+
+        loadResources();
+
+    }
+);
+
+
+
+// ============================================
+// LOAD APPROVED RESOURCES
+// ============================================
+
+async function loadResources() {
+
+    const loading =
+        document.getElementById(
+            "resourceLoading"
+        );
+
+    const errorBox =
+        document.getElementById(
+            "resourceError"
+        );
+
+    const resourceList =
+        document.getElementById(
+            "resourceList"
+        );
+
+
+    try {
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+
+            .from("resources")
+
+            .select("*")
+
+            .eq(
+                "status",
+                "approved"
+            )
+
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            )
+
+            .limit(6);
+
+
+        if (error) {
+
+            throw error;
+
+        }
+
+
+        loading.style.display =
+            "none";
+
+
+        if (
+            !data ||
+            data.length === 0
+        ) {
+
+            resourceList.innerHTML = `
+
+                <div class="alert">
+
+                    No approved resources available yet.
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        resourceList.innerHTML =
+            data.map(
+                createResourceCard
+            ).join("");
+
+
+    } catch (error) {
+
+        console.error(
+            "Resource loading error:",
+            error
+        );
+
+
+        loading.style.display =
+            "none";
+
+
+        errorBox.style.display =
+            "block";
+
+
+        errorBox.textContent =
+            "Unable to load resources. Please try again.";
+
+    }
+
+}
+
+
+
+// ============================================
+// CREATE RESOURCE CARD
+// ============================================
+
+function createResourceCard(resource) {
+
+
+    const title =
+        escapeHTML(
+            resource.title || "Untitled Resource"
+        );
+
+
+    const description =
+        escapeHTML(
+            resource.description || "No description available."
+        );
+
+
+    const subject =
+        escapeHTML(
+            resource.subject || ""
+        );
+
+
+    const unit =
+        escapeHTML(
+            resource.unit || ""
+        );
+
+
+    const type =
+        escapeHTML(
+            resource.resource_type || "Resource"
+        );
+
+
+    let actionButton = "";
+
+
+    // ========================================
+    // YOUTUBE RESOURCE
+    // ========================================
+
+    if (
+        resource.youtube_url
+    ) {
+
+        actionButton = `
+
+            <a
+                href="${escapeAttribute(resource.youtube_url)}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-primary btn-sm"
+            >
+                Watch →
+            </a>
+
+        `;
+
+    }
+
+
+    // ========================================
+    // FILE RESOURCE
+    // ========================================
+
+    else if (
+        resource.file_url
+    ) {
+
+        actionButton = `
+
+            <a
+                href="${escapeAttribute(resource.file_url)}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-primary btn-sm"
+            >
+                Open →
+            </a>
+
+        `;
+
+    }
+
+
+    // ========================================
+    // RESOURCE DETAILS
+    // ========================================
+
+    else {
+
+        actionButton = `
+
+            <a
+                href="resource.html?id=${encodeURIComponent(resource.id)}"
+                class="btn btn-primary btn-sm"
+            >
+                View →
+            </a>
+
+        `;
+
+    }
+
+
+    return `
+
+        <article class="resource-card">
+
+            <div>
+
+                <span class="resource-type">
+                    ${type}
+                </span>
+
+
+                <h3>
+                    ${title}
+                </h3>
+
+
+                <p>
+                    ${description}
+                </p>
+
+
+                <small>
+                    ${subject}
+                    ${unit ? " · " + unit : ""}
+                </small>
+
+            </div>
+
+
+            <div
+                style="
+                    margin-top:15px;
+                    display:flex;
+                    justify-content:flex-end;
+                "
+            >
+
+                ${actionButton}
+
+            </div>
+
+        </article>
+
+    `;
+
+}
+
+
+
+// ============================================
+// SECURITY HELPERS
+// ============================================
+
+function escapeHTML(value) {
+
+    return String(value)
+
+        .replaceAll("&", "&amp;")
+
+        .replaceAll("<", "&lt;")
+
+        .replaceAll(">", "&gt;")
+
+        .replaceAll('"', "&quot;")
+
+        .replaceAll("'", "&#039;");
+
+}
+
+
+function escapeAttribute(value) {
+
+    return escapeHTML(value);
+
+}
+
+</script></body></html>
