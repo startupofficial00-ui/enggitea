@@ -1,0 +1,291 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Admin Dashboard | Enggii Tea</title>
+
+<link
+    rel="stylesheet"
+    href="../css/style.css"
+>
+
+</head><body><header class="navbar"><div class="nav-inner">
+
+    <a
+        href="../index.html"
+        class="logo"
+    >
+
+        ENGGII TEA
+
+        <small>
+            Admin Panel
+        </small>
+
+    </a>
+
+
+    <button class="menu-btn">
+        ☰
+    </button>
+
+
+    <nav class="nav-links">
+
+        <a
+            href="admin-dashboard.html"
+            class="active"
+        >
+            Dashboard
+        </a>
+
+        <a href="pending-resources.html">
+            Pending Resources
+        </a>
+
+        <a href="../dashboard.html">
+            Student View
+        </a>
+
+        <a href="../profile.html">
+            Profile
+        </a>
+
+        <span id="authArea"></span>
+
+    </nav>
+
+</div>
+
+</header><main class="page"><div class="container">
+
+
+    <h1 class="page-title">
+        Admin Dashboard
+    </h1>
+
+
+    <p class="page-subtitle">
+        Manage Enggii Tea learning resources.
+    </p>
+
+
+
+    <!-- STAT CARDS -->
+
+    <section class="grid grid-3">
+
+
+        <div class="stat-card">
+
+            <span>
+                Pending Resources
+            </span>
+
+            <strong id="pendingCount">
+                —
+            </strong>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+            <span>
+                Resource Management
+            </span>
+
+            <strong>
+                ✓
+            </strong>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+            <span>
+                Platform
+            </span>
+
+            <strong>
+                Active
+            </strong>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- RESOURCE MANAGEMENT -->
+
+    <section class="section">
+
+        <div class="card">
+
+            <h2 class="section-title">
+                Resource Management
+            </h2>
+
+
+            <p
+                style="
+                    color:var(--muted);
+                    line-height:1.6;
+                    margin-bottom:20px;
+                "
+            >
+                Review resources submitted by students
+                and approve or reject them before they
+                become available on the platform.
+            </p>
+
+
+            <a
+                href="pending-resources.html"
+                class="btn btn-primary"
+            >
+                Review Pending Resources →
+            </a>
+
+        </div>
+
+    </section>
+
+
+
+</div>
+
+</main><footer class="footer">© 2026 Enggii Tea · Admin Panel
+
+</footer><!-- SUPABASE --><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../js/supabase.js"></script><script src="../js/auth.js"></script><script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    loadAdminDashboard
+);
+
+
+
+async function loadAdminDashboard() {
+
+    const pendingCount =
+        document.querySelector("#pendingCount");
+
+
+    try {
+
+
+        /* ================================
+           CHECK AUTHENTICATION
+        ================================= */
+
+        const {
+            data: { user },
+            error: authError
+        } = await supabaseClient.auth.getUser();
+
+
+        if (authError || !user) {
+
+            window.location.href =
+                "../login.html";
+
+            return;
+
+        }
+
+
+
+        /* ================================
+           CHECK ADMIN ROLE
+        ================================= */
+
+        const role =
+            user.user_metadata?.role ||
+            "student";
+
+
+        if (role !== "admin") {
+
+            alert(
+                "Access denied. Admins only."
+            );
+
+            window.location.href =
+                "../dashboard.html";
+
+            return;
+
+        }
+
+
+
+        /* ================================
+           COUNT PENDING RESOURCES
+        ================================= */
+
+        const {
+            count,
+            error
+        } = await supabaseClient
+
+            .from("resources")
+
+            .select(
+                "*",
+                {
+                    count: "exact",
+                    head: true
+                }
+            )
+
+            .eq(
+                "status",
+                "pending"
+            );
+
+
+        if (error) {
+
+            console.error(
+                "Supabase error:",
+                error
+            );
+
+            pendingCount.textContent =
+                "—";
+
+            return;
+
+        }
+
+
+
+        pendingCount.textContent =
+            count ?? 0;
+
+
+    } catch (error) {
+
+        console.error(
+            "Admin dashboard error:",
+            error
+        );
+
+
+        pendingCount.textContent =
+            "—";
+
+    }
+
+}
+
+</script></body></html>

@@ -1,0 +1,860 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Pending Resources | Enggii Tea</title>
+
+<link
+    rel="stylesheet"
+    href="../css/style.css"
+>
+
+</head><body><header class="navbar"><div class="nav-inner">
+
+    <a
+        href="../index.html"
+        class="logo"
+    >
+
+        ENGGII TEA
+
+        <small>
+            Admin Panel
+        </small>
+
+    </a>
+
+
+    <button class="menu-btn">
+        ☰
+    </button>
+
+
+    <nav class="nav-links">
+
+        <a href="admin-dashboard.html">
+            Dashboard
+        </a>
+
+        <a
+            href="pending-resources.html"
+            class="active"
+        >
+            Pending Resources
+        </a>
+
+        <a href="../dashboard.html">
+            Student View
+        </a>
+
+        <a href="../profile.html">
+            Profile
+        </a>
+
+        <span id="authArea"></span>
+
+    </nav>
+
+</div>
+
+</header><main class="page"><div class="container">
+
+
+    <!-- BREADCRUMB -->
+
+    <div class="breadcrumb">
+
+        <a href="admin-dashboard.html">
+            Admin Dashboard
+        </a>
+
+        <span>
+            ›
+        </span>
+
+        <span>
+            Pending Resources
+        </span>
+
+    </div>
+
+
+
+    <h1 class="page-title">
+        Pending Resources
+    </h1>
+
+
+    <p class="page-subtitle">
+        Review resources submitted by students.
+    </p>
+
+
+
+    <!-- MESSAGE -->
+
+    <div id="adminMessage"></div>
+
+
+
+    <!-- PENDING RESOURCES -->
+
+    <div
+        id="pendingContainer"
+        class="table-wrapper"
+    >
+
+        <div class="loading">
+
+            <div class="spinner"></div>
+
+            Loading pending resources...
+
+        </div>
+
+    </div>
+
+
+</div>
+
+</main><footer class="footer">© 2026 Enggii Tea · Admin Panel
+
+</footer><!-- SUPABASE --><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../js/supabase.js"></script><script src="../js/auth.js"></script><script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    loadPendingResources
+);
+
+
+
+/* ==========================================
+   LOAD PENDING RESOURCES
+========================================== */
+
+async function loadPendingResources() {
+
+    const container =
+        document.querySelector(
+            "#pendingContainer"
+        );
+
+
+    const message =
+        document.querySelector(
+            "#adminMessage"
+        );
+
+
+    try {
+
+
+        /* ----------------------------------
+           CHECK LOGIN
+        ---------------------------------- */
+
+        const {
+            data: { user },
+            error: authError
+        } = await supabaseClient.auth.getUser();
+
+
+        if (authError || !user) {
+
+            window.location.href =
+                "../login.html";
+
+            return;
+
+        }
+
+
+
+        /* ----------------------------------
+           CHECK ADMIN ROLE
+        ---------------------------------- */
+
+        const role =
+            user.user_metadata?.role ||
+            "student";
+
+
+        if (role !== "admin") {
+
+            alert(
+                "Access denied. Admins only."
+            );
+
+            window.location.href =
+                "../dashboard.html";
+
+            return;
+
+        }
+
+
+
+        /* ----------------------------------
+           GET PENDING RESOURCES
+        ---------------------------------- */
+
+        const {
+            data: resources,
+            error
+        } = await supabaseClient
+
+            .from("resources")
+
+            .select("*")
+
+            .eq(
+                "status",
+                "pending"
+            )
+
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
+
+
+        if (error) {
+
+            console.error(
+                "Supabase error:",
+                error
+            );
+
+            throw error;
+
+        }
+
+
+
+        /* ----------------------------------
+           NO PENDING RESOURCES
+        ---------------------------------- */
+
+        if (
+            !resources ||
+            resources.length === 0
+        ) {
+
+            container.innerHTML = `
+
+                <div class="empty-state">
+
+                    <h3>
+                        No Pending Resources
+                    </h3>
+
+                    <p>
+                        There are no resources waiting
+                        for approval.
+                    </p>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+
+        /* ----------------------------------
+           DISPLAY TABLE
+        ---------------------------------- */
+
+        container.innerHTML = `
+
+            <table class="resource-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Title
+                        </th>
+
+                        <th>
+                            Type
+                        </th>
+
+                        <th>
+                            Subject
+                        </th>
+
+                        <th>
+                            Unit
+                        </th>
+
+                        <th>
+                            Submitted
+                        </th>
+
+                        <th>
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    ${resources
+                        .map(
+                            pendingResourceRow
+                        )
+                        .join("")}
+
+                </tbody>
+
+            </table>
+
+        `;
+
+
+
+        /* ----------------------------------
+           ACTION BUTTONS
+        ---------------------------------- */
+
+        document
+            .querySelectorAll(
+                ".approve-resource"
+            )
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    handleApprove
+                );
+
+            });
+
+
+        document
+            .querySelectorAll(
+                ".reject-resource"
+            )
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    handleReject
+                );
+
+            });
+
+
+    } catch (error) {
+
+        console.error(
+            "Unable to load pending resources:",
+            error
+        );
+
+
+        container.innerHTML = `
+
+            <div class="alert alert-error">
+
+                Unable to load pending resources.
+
+                <br><br>
+
+                Please try again.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+
+/* ==========================================
+   RESOURCE TABLE ROW
+========================================== */
+
+function pendingResourceRow(resource) {
+
+    const id =
+        resource.id;
+
+
+    const title =
+        resource.title ||
+        "Untitled Resource";
+
+
+    const type =
+        resource.resource_type ||
+        "Resource";
+
+
+    const subject =
+        resource.subject ||
+        "—";
+
+
+    const unit =
+        resource.unit ||
+        "—";
+
+
+    const createdAt =
+        resource.created_at
+            ? new Date(
+                resource.created_at
+            ).toLocaleDateString()
+            : "—";
+
+
+    return `
+
+        <tr>
+
+            <td>
+
+                <strong>
+                    ${escapeHTML(title)}
+                </strong>
+
+            </td>
+
+
+            <td>
+
+                ${escapeHTML(type)}
+
+            </td>
+
+
+            <td>
+
+                ${escapeHTML(subject)}
+
+            </td>
+
+
+            <td>
+
+                ${escapeHTML(unit)}
+
+            </td>
+
+
+            <td>
+
+                ${escapeHTML(createdAt)}
+
+            </td>
+
+
+            <td>
+
+                <div
+                    style="
+                        display:flex;
+                        gap:8px;
+                        flex-wrap:wrap;
+                    "
+                >
+
+                    <a
+                        href="../resource.html?id=${encodeURIComponent(id)}"
+                        class="btn btn-primary btn-sm"
+                        target="_blank"
+                    >
+                        View
+                    </a>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-primary btn-sm approve-resource"
+                        data-id="${escapeHTML(id)}"
+                    >
+                        Approve
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-danger btn-sm reject-resource"
+                        data-id="${escapeHTML(id)}"
+                    >
+                        Reject
+                    </button>
+
+                </div>
+
+            </td>
+
+        </tr>
+
+    `;
+
+}
+
+
+
+/* ==========================================
+   APPROVE RESOURCE
+========================================== */
+
+async function handleApprove(event) {
+
+    const button =
+        event.currentTarget;
+
+
+    const id =
+        button.dataset.id;
+
+
+    if (!id) {
+
+        alert(
+            "Resource ID not found."
+        );
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+            "Approve this resource?"
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    button.disabled = true;
+
+    button.textContent =
+        "Approving...";
+
+
+    try {
+
+
+        const {
+            data: { user },
+            error: authError
+        } = await supabaseClient.auth.getUser();
+
+
+        if (authError || !user) {
+
+            window.location.href =
+                "../login.html";
+
+            return;
+
+        }
+
+
+        const role =
+            user.user_metadata?.role ||
+            "student";
+
+
+        if (role !== "admin") {
+
+            alert(
+                "Access denied."
+            );
+
+            return;
+
+        }
+
+
+
+        const {
+            error
+        } = await supabaseClient
+
+            .from("resources")
+
+            .update({
+                status: "approved"
+            })
+
+            .eq(
+                "id",
+                id
+            );
+
+
+        if (error) {
+
+            throw error;
+
+        }
+
+
+        showMessage(
+            "Resource approved successfully.",
+            "success"
+        );
+
+
+        await loadPendingResources();
+
+
+    } catch (error) {
+
+        console.error(
+            "Approve error:",
+            error
+        );
+
+
+        alert(
+            error.message ||
+            "Unable to approve resource."
+        );
+
+
+        button.disabled = false;
+
+        button.textContent =
+            "Approve";
+
+    }
+
+}
+
+
+
+/* ==========================================
+   REJECT RESOURCE
+========================================== */
+
+async function handleReject(event) {
+
+    const button =
+        event.currentTarget;
+
+
+    const id =
+        button.dataset.id;
+
+
+    if (!id) {
+
+        alert(
+            "Resource ID not found."
+        );
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+            "Reject this resource?"
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    button.disabled = true;
+
+    button.textContent =
+        "Rejecting...";
+
+
+    try {
+
+
+        const {
+            data: { user },
+            error: authError
+        } = await supabaseClient.auth.getUser();
+
+
+        if (authError || !user) {
+
+            window.location.href =
+                "../login.html";
+
+            return;
+
+        }
+
+
+        const role =
+            user.user_metadata?.role ||
+            "student";
+
+
+        if (role !== "admin") {
+
+            alert(
+                "Access denied."
+            );
+
+            return;
+
+        }
+
+
+
+        const {
+            error
+        } = await supabaseClient
+
+            .from("resources")
+
+            .update({
+                status: "rejected"
+            })
+
+            .eq(
+                "id",
+                id
+            );
+
+
+        if (error) {
+
+            throw error;
+
+        }
+
+
+        showMessage(
+            "Resource rejected.",
+            "success"
+        );
+
+
+        await loadPendingResources();
+
+
+    } catch (error) {
+
+        console.error(
+            "Reject error:",
+            error
+        );
+
+
+        alert(
+            error.message ||
+            "Unable to reject resource."
+        );
+
+
+        button.disabled = false;
+
+        button.textContent =
+            "Reject";
+
+    }
+
+}
+
+
+
+/* ==========================================
+   MESSAGE
+========================================== */
+
+function showMessage(
+    text,
+    type = "success"
+) {
+
+    const message =
+        document.querySelector(
+            "#adminMessage"
+        );
+
+
+    message.innerHTML = `
+
+        <div class="alert alert-${type}">
+
+            ${escapeHTML(text)}
+
+        </div>
+
+    `;
+
+
+    setTimeout(() => {
+
+        message.innerHTML = "";
+
+    }, 3000);
+
+}
+
+
+
+/* ==========================================
+   HTML ESCAPE
+========================================== */
+
+function escapeHTML(value) {
+
+    return String(value ?? "")
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+</script></body></html>
