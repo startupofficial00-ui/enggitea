@@ -2,11 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Register | Enggii Tea</title>
+
     <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -21,7 +20,7 @@
             <small>Engineering Mathematics</small>
         </a>
 
-        <button class="menu-btn">☰</button>
+        <button class="menu-btn" type="button">☰</button>
 
         <nav class="nav-links">
             <a href="index.html">Home</a>
@@ -31,6 +30,7 @@
     </div>
 
 </header>
+
 
 <main class="auth-wrapper">
 
@@ -42,14 +42,19 @@
             Join Enggii Tea and start learning smarter.
         </p>
 
+
+        <!-- Message -->
         <div
             id="registerMessage"
             class="alert"
             style="display:none;"
         ></div>
 
+
+        <!-- Register Form -->
         <form id="registerForm">
 
+            <!-- Full Name -->
             <div class="form-group">
 
                 <label for="name">
@@ -61,11 +66,14 @@
                     id="name"
                     class="form-control"
                     placeholder="Enter your name"
+                    autocomplete="name"
                     required
                 >
 
             </div>
 
+
+            <!-- Email -->
             <div class="form-group">
 
                 <label for="email">
@@ -77,11 +85,14 @@
                     id="email"
                     class="form-control"
                     placeholder="Enter your email"
+                    autocomplete="email"
                     required
                 >
 
             </div>
 
+
+            <!-- Password -->
             <div class="form-group">
 
                 <label for="password">
@@ -94,11 +105,14 @@
                     class="form-control"
                     placeholder="Create a password"
                     minlength="6"
+                    autocomplete="new-password"
                     required
                 >
 
             </div>
 
+
+            <!-- Confirm Password -->
             <div class="form-group">
 
                 <label for="confirmPassword">
@@ -110,13 +124,17 @@
                     id="confirmPassword"
                     class="form-control"
                     placeholder="Confirm your password"
+                    autocomplete="new-password"
                     required
                 >
 
             </div>
 
+
+            <!-- Create Account Button -->
             <button
                 type="submit"
+                id="registerButton"
                 class="btn btn-primary"
                 style="width:100%;"
             >
@@ -125,6 +143,8 @@
 
         </form>
 
+
+        <!-- Login Link -->
         <p style="margin-top:20px;text-align:center;">
 
             Already have an account?
@@ -142,8 +162,272 @@
 
 </main>
 
-<script src="js/api.js"></script>
-<script src="js/auth.js"></script>
+
+<footer class="footer">
+    © 2026 Enggii Tea · Engineering Mathematics Resource Hub
+</footer>
+
+
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- Your Supabase configuration -->
+<script src="js/supabase.js"></script>
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const registerForm =
+        document.getElementById("registerForm");
+
+    const registerMessage =
+        document.getElementById("registerMessage");
+
+    const registerButton =
+        document.getElementById("registerButton");
+
+
+    registerForm.addEventListener("submit", async (event) => {
+
+        event.preventDefault();
+
+
+        const name =
+            document.getElementById("name").value.trim();
+
+        const email =
+            document.getElementById("email").value.trim();
+
+        const password =
+            document.getElementById("password").value;
+
+        const confirmPassword =
+            document.getElementById("confirmPassword").value;
+
+
+        /* Hide previous message */
+        registerMessage.style.display = "none";
+        registerMessage.textContent = "";
+
+
+        /* Check password */
+        if (password !== confirmPassword) {
+
+            showMessage(
+                "Passwords do not match.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        /* Password length */
+        if (password.length < 6) {
+
+            showMessage(
+                "Password must be at least 6 characters.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        /* Check Supabase client */
+        if (!window.supabaseClient) {
+
+            showMessage(
+                "Supabase is not connected. Please check js/supabase.js.",
+                "error"
+            );
+
+            console.error(
+                "supabaseClient is not available."
+            );
+
+            return;
+        }
+
+
+        /* Disable button */
+        registerButton.disabled = true;
+        registerButton.textContent = "Creating Account...";
+
+
+        try {
+
+            const {
+                data,
+                error
+            } = await window.supabaseClient.auth.signUp({
+
+                email: email,
+
+                password: password,
+
+                options: {
+
+                    data: {
+                        name: name,
+                        role: "student"
+                    }
+
+                }
+
+            });
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            console.log(
+                "Registration response:",
+                data
+            );
+
+
+            /*
+             * Email confirmation enabled
+             */
+            if (
+                data.user &&
+                !data.session
+            ) {
+
+                showMessage(
+                    "Account created successfully! Please check your email and confirm your account before logging in.",
+                    "success"
+                );
+
+                registerForm.reset();
+
+                registerButton.disabled = false;
+                registerButton.textContent = "Create Account";
+
+                return;
+            }
+
+
+            /*
+             * Email confirmation disabled
+             */
+            if (data.session) {
+
+                showMessage(
+                    "Account created successfully! Redirecting...",
+                    "success"
+                );
+
+
+                setTimeout(() => {
+
+                    window.location.href =
+                        "dashboard.html";
+
+                }, 1000);
+
+                return;
+            }
+
+
+            showMessage(
+                "Account created. Please login to continue.",
+                "success"
+            );
+
+
+            setTimeout(() => {
+
+                window.location.href =
+                    "login.html";
+
+            }, 1500);
+
+
+        } catch (error) {
+
+            console.error(
+                "Registration error:",
+                error
+            );
+
+
+            let message =
+                error.message ||
+                "Unable to create account. Please try again.";
+
+
+            /* Friendly Supabase messages */
+
+            if (
+                message.toLowerCase().includes(
+                    "user already registered"
+                )
+            ) {
+
+                message =
+                    "This email is already registered. Please login instead.";
+
+            }
+
+
+            if (
+                message.toLowerCase().includes(
+                    "password"
+                )
+            ) {
+
+                message =
+                    "Please use a valid password with at least 6 characters.";
+
+            }
+
+
+            showMessage(
+                message,
+                "error"
+            );
+
+
+            registerButton.disabled = false;
+            registerButton.textContent = "Create Account";
+
+        }
+
+    });
+
+
+    function showMessage(message, type) {
+
+        registerMessage.textContent = message;
+
+        registerMessage.style.display = "block";
+
+        if (type === "success") {
+
+            registerMessage.classList.remove("error");
+
+            registerMessage.classList.add("success");
+
+        } else {
+
+            registerMessage.classList.remove("success");
+
+            registerMessage.classList.add("error");
+
+        }
+
+    }
+
+});
+
+</script>
+
 
 </body>
 </html>
